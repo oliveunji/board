@@ -8,7 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { UsePipes } from '@nestjs/common/decorators';
-import { ValidationPipe } from '@nestjs/common/pipes';
+import { ParseIntPipe, ValidationPipe } from '@nestjs/common/pipes';
 import { BoardStatus } from './board-status.enum';
 import { Board } from './board.entity';
 import { BoardsService } from './boards.service';
@@ -18,10 +18,11 @@ import { BoardStatusValidationPipe } from './pipes/board-status-validation.pipe'
 @Controller('boards')
 export class BoardsController {
   constructor(private boardService: BoardsService) {}
-  // @Get('/')
-  // getAllBoard(): Board[] {
-  //   return this.boardService.getAllBoards();
-  // }
+
+  @Get('/')
+  getAllBoard(): Promise<Board[]> {
+    return this.boardService.getAllBoards();
+  }
 
   @Post()
   @UsePipes(ValidationPipe)
@@ -33,16 +34,17 @@ export class BoardsController {
   getBoardById(@Param('id') id: number): Promise<Board> {
     return this.boardService.getBoardById(id);
   }
-  // @Delete('/:id')
-  // deleteBoard(@Param('id') id: string): void {
-  //   this.boardService.deleteBoard(id);
-  // }
 
-  // @Patch('/:id/status')
-  // updateBoardStatus(
-  //   @Param('id') id: string,
-  //   @Body('status', BoardStatusValidationPipe) status: BoardStatus,
-  // ) {
-  //   return this.boardService.updateBoardStatus(id, status);
-  // }
+  @Delete('/:id')
+  deleteBoard(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.boardService.deleteBoard(id);
+  }
+
+  @Patch('/:id/status')
+  updateBoardStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('status', BoardStatusValidationPipe) status: BoardStatus,
+  ) {
+    return this.boardService.updateBoardStatus(id, status);
+  }
 }
